@@ -10,11 +10,44 @@ class carrowtype(Structure):
     ]
 
 class cgametype(Structure):
-    _fields_ = []
+    _fields_ = [
+        ("arrow_map", POINTER(c_int)),
+        ("power_map", POINTER(c_int)),
+        ("next_power_map", POINTER(c_int)),
+    ]
+
+class cmapentry(Structure):
+    _fields_ = [
+        ("flags", c_uint8),
+        ("x", c_size_t),
+        ("y", c_size_t),
+        ("data", c_uint8 * 32),
+    ]
+
 
 dll = cdll.LoadLibrary(os.path.abspath("logicarrows.dll"))
 dll.game_new.restype = POINTER(cgametype)
 dll.game_get_arrow.restype = POINTER(carrowtype)
+dll.map_new_iterator.restype = POINTER(c_int)
+dll.map_iterator_next.restype = POINTER(cmapentry)
+dll.game_get_power.restype = c_uint8
+
+class MapIterator:
+    def __init__(self, map, type) -> None:
+        self.map = map
+        self.type = type
+
+    def __iter__(self):
+        self.iterator = dll.map_new_iterator(self.map)
+        return self
+    
+    def __next__(self):
+        value = dll.map_iterator_next(self.iterator)
+        if value:
+            return value[0].x, value[0].y, cast(value[0].data, POINTER(self.type))[0]
+
+        dll.map_free_iterator(self.iterator)
+        raise StopIteration
 
 ARROW_DIRECTION_MASK = 0b00000011
 ARROW_UP = 0b00
@@ -56,3 +89,6 @@ class LogicArrows:
     def tick(self):
         dll.game_tick(self.instance)
         pass
+
+    def get_power(self, x: int, y: int) -> Arrow:
+        return dll.game_get_power(self.instance, x, y)

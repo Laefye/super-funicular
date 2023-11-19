@@ -1,4 +1,4 @@
-from game import LogicArrows, Arrow, SIZE, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, ARROW_BOTTOM
+from game import *
 import pygame
 
 ArrowSize = 35
@@ -56,6 +56,13 @@ while not done:
     if pressed[pygame.K_2]: selected_arrow = 2
     if pressed[pygame.K_3]: selected_arrow = 3
     
+    for x, y, arrow in MapIterator(gameplay.instance[0].arrow_map, carrowtype):
+        arrow = Arrow.from_carrow(arrow)
+        power = gameplay.get_power(x, y)
+        if (arrow.type > 0 and power > 0):
+            pygame.draw.rect(screen, (255, 0, 0), (ArrowSize * x, ArrowSize * y, ArrowSize, ArrowSize))
+        if arrow.type > 0:
+            screen.blit(rotate(textures['arrow_' + str(arrow.type)], arrow.direction), (ArrowSize * x, ArrowSize * y))
     # for y in range(10):
         # for x in range(10):
             # arrow = gameplay.get_arrow(x, y)

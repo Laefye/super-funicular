@@ -40,8 +40,11 @@ void game_arrow_logic(coordinate_t x, coordinate_t y, arrow_t* arrow, game_t* ga
     switch (arrow->type) {
         case ARROW_TYPE_BASIC:
             if (((power_t*) map_get(game->power_map, x, y, 0))[0] > 0) {
-                ((power_t*) map_get(game->next_power_map, x + dx, y + dy, 0))[0] += 1;
+                uint8_t is_new = 0;
+                ((power_t*) map_get(game->next_power_map, x + dx, y + dy, &is_new))[0] += 1;
+                printf("is new %d\n", is_new);
             }
+            printf("%d\n", ((power_t*) map_get(game->next_power_map, x, y, 0))[0]);
             break;
         case ARROW_TYPE_OUT:
             ((power_t*) map_get(game->next_power_map, x, y, 0))[0] += 1;
@@ -49,11 +52,12 @@ void game_arrow_logic(coordinate_t x, coordinate_t y, arrow_t* arrow, game_t* ga
             ((power_t*) map_get(game->next_power_map, x - 1, y, 0))[0] += 1;
             ((power_t*) map_get(game->next_power_map, x, y + 1, 0))[0] += 1;
             ((power_t*) map_get(game->next_power_map, x, y - 1, 0))[0] += 1;
-        case ARROW_TYPE_AND:
-            if (((power_t*) map_get(game->power_map, x, y, 0))[0] > 1) {
-                ((power_t*) map_get(game->next_power_map, x, y, 0))[0] += 1;
-            }
             break;
+        // case ARROW_TYPE_AND:
+        //     if (((power_t*) map_get(game->power_map, x, y, 0))[0] > 1) {
+        //         ((power_t*) map_get(game->next_power_map, x, y, 0))[0] += 1;
+        //     }
+        //     break;
         default:
             break;
     }
@@ -83,4 +87,8 @@ arrow_t* game_get_arrow(game_t* game, coordinate_t x, coordinate_t y) {
         arrow->flags = 0;
     }
     return arrow;
+}
+
+power_t game_get_power(game_t* game, coordinate_t x, coordinate_t y) {
+    return ((power_t*) map_get(game->power_map, x, y, 0))[0];
 }

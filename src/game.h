@@ -23,4 +23,6 @@ API void game_set_arrow(game_t* game, coordinate_t x, coordinate_t y, arrow_t ar
 
 API arrow_t* game_get_arrow(game_t* game, coordinate_t x, coordinate_t y);
 
+API power_t game_get_power(game_t* game, coordinate_t x, coordinate_t y);
+
 #endif
