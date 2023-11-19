@@ -14,11 +14,8 @@ typedef struct arrow_t arrow_t;
 
 typedef uint16_t arrow_type;
 typedef uint8_t arrow_flags; 
-typedef size_t coordinate;
 
 struct arrow_t {
-    coordinate x;
-    coordinate y;
     arrow_type type;
     arrow_flags flags;
 };

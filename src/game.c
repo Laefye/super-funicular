@@ -5,18 +5,20 @@
 
 game_t* game_new() {
     game_t* game = calloc(1, sizeof(game_t));
+    game->arrow_map = map_new();
+    game->power_map = map_new();
+    game->next_power_map = map_new();
     return game;
 }
 
-void game_delete(game_t* game) {
+void game_free(game_t* game) {
+    map_free(game->arrow_map);
+    map_free(game->power_map);
+    map_free(game->next_power_map);
     free(game);
 }
 
-const char* ascii_arrow(arrow_t* arrow) {
-    return arrow->type ? (((arrow->flags & ARROW_DIRECTION_MASK) == ARROW_UP) ? "U" : ((arrow->flags & ARROW_DIRECTION_MASK) == ARROW_RIGHT) ? "R" : ((arrow->flags & ARROW_DIRECTION_MASK) == ARROW_BOTTOM) ? "D" : ((arrow->flags & ARROW_DIRECTION_MASK) == ARROW_LEFT) ? "L" : "") : "";
-}
-
-void game_arrow_logic(size_t x, size_t y, arrow_t* arrow, game_t* game) {
+void game_arrow_logic(coordinate_t x, coordinate_t y, arrow_t* arrow, game_t* game) {
     size_t dx = 0;
     size_t dy = 0;
     switch (arrow->flags & ARROW_DIRECTION_MASK) {
@@ -37,20 +39,19 @@ void game_arrow_logic(size_t x, size_t y, arrow_t* arrow, game_t* game) {
     }
     switch (arrow->type) {
         case ARROW_TYPE_BASIC:
-            if (game->power_map[y][x] && dx + x >= 0 && dx + x < BOARD_SIZE && dy + y >= 0 && dy + y < BOARD_SIZE) {
-                game->next_power_map[y + dy][x + dx] += 1;
+            if (((power_t*) map_get(game->power_map, x, y, 0))[0] > 0) {
+                ((power_t*) map_get(game->next_power_map, x + dx, y + dy, 0))[0] += 1;
             }
             break;
         case ARROW_TYPE_OUT:
-            game->next_power_map[y][x] += 1;
-            if (y < BOARD_SIZE - 1) game->next_power_map[y + 1][x] += 1;
-            if (y > 0)              game->next_power_map[y - 1][x] += 1;
-            if (x < BOARD_SIZE - 1) game->next_power_map[y][x + 1] += 1;
-            if (x > 0)              game->next_power_map[y][x - 1] += 1;
-            break;
+            ((power_t*) map_get(game->next_power_map, x, y, 0))[0] += 1;
+            ((power_t*) map_get(game->next_power_map, x + 1, y, 0))[0] += 1;
+            ((power_t*) map_get(game->next_power_map, x - 1, y, 0))[0] += 1;
+            ((power_t*) map_get(game->next_power_map, x, y + 1, 0))[0] += 1;
+            ((power_t*) map_get(game->next_power_map, x, y - 1, 0))[0] += 1;
         case ARROW_TYPE_AND:
-            if (game->power_map[y][x] > 1 && dx + x >= 0 && dx + x < BOARD_SIZE && dy + y >= 0 && dy + y < BOARD_SIZE) {
-                game->next_power_map[y + dy][x + dx] += 1;
+            if (((power_t*) map_get(game->power_map, x, y, 0))[0] > 1) {
+                ((power_t*) map_get(game->next_power_map, x, y, 0))[0] += 1;
             }
             break;
         default:
@@ -59,30 +60,27 @@ void game_arrow_logic(size_t x, size_t y, arrow_t* arrow, game_t* game) {
 }
 
 void game_tick(game_t* game) {
-    for (size_t y = 0; y < BOARD_SIZE; y++) {
-        for (size_t x = 0; x < BOARD_SIZE; x++) {
-            game->next_power_map[y][x] = 0;
-        }
+    map_clear(game->next_power_map);
+    map_iterator_t* iterator = map_new_iterator(game->arrow_map);
+    entry_t* entry;
+    while ((entry = map_iterator_next(iterator))) {
+        game_arrow_logic(entry->x, entry->y, (arrow_t*) entry->data, game);
     }
-    for (size_t y = 0; y < BOARD_SIZE; y++) {
-        for (size_t x = 0; x < BOARD_SIZE; x++) {
-            if (game->arrow_map[y][x].type) {
-                game_arrow_logic(x, y, game->arrow_map[y] + x, game);
-            }
-        }
-    }
-    for (size_t y = 0; y < BOARD_SIZE; y++) {
-        for (size_t x = 0; x < BOARD_SIZE; x++) {
-            game->power_map[y][x] = game->next_power_map[y][x];
-        }
-    }
+    map_free_iterator(iterator);
+    map_copy(game->power_map, game->next_power_map);
 }
 
-void game_print(game_t* game) {
-    for (size_t y = 0; y < BOARD_SIZE; y++) {
-        for (size_t x = 0; x < BOARD_SIZE; x++) {
-            printf("%1s%d|", ascii_arrow(game->arrow_map[y] + x), game->power_map[y][x]);
-        }
-        printf("\n");
+void game_set_arrow(game_t* game, coordinate_t x, coordinate_t y, arrow_t arrow) {
+    arrow_t* arrow_from_map = (arrow_t*) map_get(game->arrow_map, x, y, 0);
+    memcpy(arrow_from_map, &arrow, sizeof(arrow_t));
+}
+
+arrow_t* game_get_arrow(game_t* game, coordinate_t x, coordinate_t y) {
+    uint8_t is_new = 0;
+    arrow_t* arrow = (arrow_t*) map_get(game->arrow_map, x, y, &is_new);
+    if (is_new) {
+        arrow->type = 0;
+        arrow->flags = 0;
     }
+    return arrow;
 }

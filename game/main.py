@@ -45,6 +45,8 @@ while not done:
             if event.button == 2:
                 arrow.type = 0
                 gameplay.set_arrow(x, y, arrow)
+            if event.button == 3:
+                gameplay.tick()
     pressed = pygame.key.get_pressed()
     if pressed[pygame.K_w]: direction = ARROW_UP
     if pressed[pygame.K_s]: direction = ARROW_BOTTOM
@@ -54,15 +56,15 @@ while not done:
     if pressed[pygame.K_2]: selected_arrow = 2
     if pressed[pygame.K_3]: selected_arrow = 3
     
-    for x, y, arrow in gameplay.arrows():
-        if (arrow.type > 0 and gameplay.instance[0].power_map[y][x] == 1):
-            pygame.draw.rect(screen, (255, 0, 0), (ArrowSize * x, ArrowSize * y, ArrowSize, ArrowSize))
-        if (arrow.type > 0 and gameplay.instance[0].power_map[y][x] == 2):
-            pygame.draw.rect(screen, (255, 0, 255), (ArrowSize * x, ArrowSize * y, ArrowSize, ArrowSize))
-        if arrow.type > 0:
-            screen.blit(rotate(textures['arrow_' + str(arrow.type)], arrow.direction), (ArrowSize * x, ArrowSize * y))
-    gameplay.tick()
+    # for y in range(10):
+        # for x in range(10):
+            # arrow = gameplay.get_arrow(x, y)
+            # if (arrow.type > 0 and gameplay.instance[0].power_map[y][x] == 1):
+            #     pygame.draw.rect(screen, (255, 0, 0), (ArrowSize * x, ArrowSize * y, ArrowSize, ArrowSize))
+            # if (arrow.type > 0 and gameplay.instance[0].power_map[y][x] == 2):
+            #     pygame.draw.rect(screen, (255, 0, 255), (ArrowSize * x, ArrowSize * y, ArrowSize, ArrowSize))
+            # if arrow.type > 0:
+                # screen.blit(rotate(textures['arrow_' + str(arrow.type)], arrow.direction), (ArrowSize * x, ArrowSize * y))
     pygame.display.flip()
-    clock.tick(5)
 
 gameplay.delete()

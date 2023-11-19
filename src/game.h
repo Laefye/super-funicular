@@ -1,27 +1,26 @@
 #ifndef GAME_H
 #define GAME_H
 #include "arrow.h"
+#include "map.h"
 #define BOARD_SIZE 20
 #include "api.h"
 
 typedef struct game_t game_t;
 
 struct game_t {
-    arrow_t arrow_map[BOARD_SIZE][BOARD_SIZE];
-    power_t power_map[BOARD_SIZE][BOARD_SIZE];
-    power_t next_power_map[BOARD_SIZE][BOARD_SIZE];
+    map_t arrow_map;
+    map_t power_map;
+    map_t next_power_map;
 };
 
-// Allocate mememory and init game
 API game_t* game_new();
 
-// Free memory and "destroy" game
-API void game_delete(game_t* game);
+API void game_free(game_t* game);
 
-// For debugging, print table in stdout
-API void game_print(game_t* game);
-
-// Tick game
 API void game_tick(game_t* game);
+
+API void game_set_arrow(game_t* game, coordinate_t x, coordinate_t y, arrow_t arrow);
+
+API arrow_t* game_get_arrow(game_t* game, coordinate_t x, coordinate_t y);
 
 #endif

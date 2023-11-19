@@ -3,6 +3,7 @@
         "stdio.h": "c",
         "stdlib.h": "c",
         "game.h": "c",
-        "api.h": "c"
+        "api.h": "c",
+        "map.h": "c"
     }
 }

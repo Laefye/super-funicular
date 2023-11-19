@@ -4,7 +4,7 @@ LDFLAGS=
 
 all: logicarrows.dll
 
-src/chunk.o: src/chunk.c # not work
+src/map.o: src/map.c
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 src/game.o: src/game.c
@@ -12,7 +12,7 @@ src/game.o: src/game.c
 
 clean:
 	rm -f src/main.o
-	rm -f src/chunk.o
+	rm -f src/map.o
 	rm -f src/game.o
 	rm -f logicarrows.dll
 	rm -f logicarrows.exp
@@ -20,7 +20,7 @@ clean:
 	rm -f game/logicarrows.dll
 	rm -fr game/__pycache__
 
-logicarrows.dll: src/game.o
+logicarrows.dll: src/game.o src/map.o
 	$(CC) -shared $(LDFLAGS) $^ -o $@
 
 run: logicarrows.dll
