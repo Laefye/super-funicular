@@ -2,6 +2,7 @@
 #define GAME_H
 #include "arrow.h"
 #define BOARD_SIZE 20
+#include "api.h"
 
 typedef struct game_t game_t;
 
@@ -12,15 +13,15 @@ struct game_t {
 };
 
 // Allocate mememory and init game
-game_t* game_new();
+API game_t* game_new();
 
 // Free memory and "destroy" game
-void game_delete(game_t* game);
+API void game_delete(game_t* game);
 
 // For debugging, print table in stdout
-void game_print(game_t* game);
+API void game_print(game_t* game);
 
 // Tick game
-void game_tick(game_t* game);
+API void game_tick(game_t* game);
 
 #endif
