@@ -27,5 +27,6 @@ typedef uint8_t power_t;
 
 #define ARROW_TYPE_BASIC 1
 #define ARROW_TYPE_OUT   2
+#define ARROW_TYPE_AND   3
 
 #endif

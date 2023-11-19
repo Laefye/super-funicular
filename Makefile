@@ -17,6 +17,12 @@ clean:
 	rm -f logicarrows.dll
 	rm -f logicarrows.exp
 	rm -f logicarrows.lib
+	rm -f game/logicarrows.dll
+	rm -fr game/__pycache__
 
 logicarrows.dll: src/game.o
 	$(CC) -shared $(LDFLAGS) $^ -o $@
+
+run: logicarrows.dll
+	cp logicarrows.dll game/logicarrows.dll
+	cd game && python main.py

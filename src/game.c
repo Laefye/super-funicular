@@ -42,10 +42,16 @@ void game_arrow_logic(size_t x, size_t y, arrow_t* arrow, game_t* game) {
             }
             break;
         case ARROW_TYPE_OUT:
+            game->next_power_map[y][x] += 1;
             if (y < BOARD_SIZE - 1) game->next_power_map[y + 1][x] += 1;
             if (y > 0)              game->next_power_map[y - 1][x] += 1;
             if (x < BOARD_SIZE - 1) game->next_power_map[y][x + 1] += 1;
             if (x > 0)              game->next_power_map[y][x - 1] += 1;
+            break;
+        case ARROW_TYPE_AND:
+            if (game->power_map[y][x] > 1 && dx + x >= 0 && dx + x < BOARD_SIZE && dy + y >= 0 && dy + y < BOARD_SIZE) {
+                game->next_power_map[y + dy][x + dx] += 1;
+            }
             break;
         default:
             break;
